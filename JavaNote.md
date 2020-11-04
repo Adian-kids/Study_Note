@@ -227,6 +227,10 @@ static{
 }
 ```
 
+static成员变量是一个类中的所有对象共享的
+
+在访问static成员变量时会发生static成员初始化过程，再次建立对象时，不会重复初始化
+
 ##### final关键字
 
 1. 被final修饰的类不能被继承
@@ -239,4 +243,114 @@ static{
 
 ### 构造方法
 
-构造方法的名字必须和所在类的名字一致，没有返回值，但不能声明void，访问权限可以为任意，但是一般情况下使用public方法权限，构造方法中的参数可以根据需要自行定义，参数的不同的构造方法构成重载；
+构造方法的名字必须和所在类的名字一致，没有返回值，但不能声明void，访问权限可以为任意，但是一般情况下使用public方法权限，构造方法中的参数可以根据需要自行定义，参数的不同的构造方法构成重载
+
+#### 对象的初始化
+
+如果没有构造方法，编译器会制定一个默认的，没有任何参数的构造方法去进行初始化，所以以下的两个类的定义是等价的
+
+```java
+//未定以构造方法
+public class MyClass{System.out.println("Test")}
+
+//定义了构造方法
+public class MyClass{
+    public MyClass(){
+  		System.out.println("Test")
+    }
+}
+```
+
+这两种都可以直接`new`
+
+**也可以定义多个构造方法**，如果定义了有参的构造方法，那么就不会自动生成无参的方法，需要自己手动定义
+
+#### String类的特性
+
+在创建了str1后
+
+```java
+String str1 = "Hello";
+```
+
+此时会给str1创建一个新对象，但是如果
+
+```java
+String str2 = "Hello";
+```
+
+此时不会再新建对象，会把str1赋值给str2,如果想要str2新建对象
+
+```java
+String str2 = new String("Hello");
+```
+
+
+
+### 对象的销毁与内存回收
+
+```java
+System.gc();
+finalize();
+```
+
+# Java的数据类型
+
+## 各数据类型默认值
+
+| **数据类型**           | **默认值** |
+| :--------------------- | :--------- |
+| byte                   | 0          |
+| short                  | 0          |
+| int                    | 0          |
+| long                   | 0L         |
+| float                  | 0.0f       |
+| double                 | 0.0d       |
+| char                   | 'u0000'    |
+| String (or any object) | null       |
+| boolean                | false      |
+
+## 强制转换
+
+byte->short->int->long->float->double
+
+```java
+int a = 32;
+byte b = (byte)a
+```
+
+
+
+# 类的特性
+
+## 类的继承
+
+Java使用extends来继承
+
+```java
+class Subclass extends superclass{}
+```
+
+## 方法重写
+
+子类重写的方法必须与父类中对应的方法具有相同的方法名，返回值类型和参数列表，方法重写也被称为方法覆盖
+
+## Super关键字
+
+子类在重写了父类的关键字之后，常常还需要用到父类中被重写的方法
+
+```java
+//调用父类的构造方法
+super();
+//调用父类中被重写的方法
+super.funcname();
+```
+
+# 抽象类
+
+Java允许在类中只声明方法而不提供方法的实现，这种方法被称为抽象方法，这种类被称为抽象类，功能一般由子类实现
+
+```java
+abstract class function{}
+```
+
