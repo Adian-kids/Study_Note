@@ -52,6 +52,8 @@ ls -l /etc/alternatives/java
 
 # Java的类和包
 
+java定义的整形变量默认为0;
+
 ## 类 Class
 
 如果定义一个
@@ -373,4 +375,14 @@ abstract class function{}
 7. 内部类中声明static成员，要求该内部类必须声明为static
 
 内部类可以作为外部类的一个成员使用，可以访问外部类的所有成员，包括private的成员
+
+## 匿名类
+
+匿名类是不能有名称的类,所以不能直接引用,必须在创建时作为new语句的一部分来声明匿名类
+
+```java
+new <类或接口><类的主体>
+```
+
+
 
