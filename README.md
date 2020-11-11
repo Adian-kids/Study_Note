@@ -7,9 +7,11 @@ My study note for Pentest and CTF  Yes!
 
 # Study_Plan
 
-- 刷一遍vulhub
 - java学习，接Java代码审计
-- python安全开发阅读
+- 《python安全攻防》
+- 《白帽子讲Web安全》
+- 《在实践中学习Metasploit5渗透测试》
+- 刷一遍vulhub
 - ctf  all-in-one
 - Wgpsec Wiki
 
@@ -42,3 +44,7 @@ https://www.ichunqiu.com/course/54377
 ## 2020.11.7
 
 学习了java，整理了逻辑漏洞挖掘的一些思路
+
+## 2020.11.8-2020.11.11
+
+学习Java
