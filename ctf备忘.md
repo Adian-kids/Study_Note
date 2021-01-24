@@ -1,0 +1,8 @@
+- is_numeric() 函数用于检测变量是否为数字或数字字符串。使用%00(空格符)，无论在前还是后，is-numeric都判断其为非数字，num=1%00,其可满足is-numeric()
+- show_source("example.php")函数可以查看内容
+- system , shell_exec , exec , passthru可以执行命令
+  - system('whoami')
+- eval(GLOABLE)可以输出所有变量值
+- flag可能在header里面，通过network查看
+- 题目提示本地，可能需要伪造一个X-Forwarded-For:127.0.0.1
+- .git源码泄露可以尝试一下`git reflog`回滚`git reset --hard 版本号`
