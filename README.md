@@ -1,6 +1,8 @@
 # Study_Note
 My study note for Pentest and CTF  Yes!
 
+没有谁能够骂醒你,只有自己才能唤醒自己
+
 # Something
 
 不知道有多久都在固步自封了，自以为可以成为佼佼者，其实只是在原地踏步，希望每一天，都可以学到新的知识，成为自己的英雄，趁着年轻，实现自己吧
